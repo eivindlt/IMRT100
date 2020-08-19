@@ -14,16 +14,19 @@ FORWARDS = 1
 BACKWARDS = -1
 
 #Master adjustments
-MASTER_SPEED = 2
-MASTER_WALL_DISTANCE = 1.2
+MASTER_SPEED = 1
+MASTER_WALL_DISTANCE = 1
 TURN_LEFT_DISTANCE = 40
 
 DRIVING_SPEED = 100 * MASTER_SPEED
 TURNING_SPEED = 100 * MASTER_SPEED
-STOP_DISTANCE = int (22 * MASTER_SPEED) 
-MAX_WALL_DISTANCE = int(12 * MASTER_WALL_DISTANCE)
+
+STOP_DISTANCE = int(50 * 0.4*((MASTER_SPEED)**2))
+
+MAX_WALL_DISTANCE = int(14 * MASTER_WALL_DISTANCE)
+IDEAL_WALL_DISTANCE = int(12 * MASTER_WALL_DISTANCE)
 MIN_WALL_DISTANCE = int(10 * MASTER_WALL_DISTANCE)
-CORRECTION_SPEED = 85 * MASTER_SPEED
+
 INNER_WHEEL_SPEED = 10 * MASTER_SPEED
 
 
@@ -62,7 +65,7 @@ def drive_robot(direction, duration):
 def turn_robot_right():
 
     direction = 1
-    iterations = int(13 / MASTER_SPEED)
+    iterations = int(15 / MASTER_SPEED)
     
     for i in range(iterations):
         motor_serial.send_command(TURNING_SPEED * direction, -TURNING_SPEED * direction)
@@ -71,31 +74,41 @@ def turn_robot_right():
 def turn_robot_left():
 
     direction = -1
-    iterations = int(30 / MASTER_SPEED)
+    iterations = int(15 / MASTER_SPEED)
     
     for i in range(iterations):
-        motor_serial.send_command(INNER_WHEEL_SPEED, -TURNING_SPEED * direction)
+        motor_serial.send_command(TURNING_SPEED * direction, -TURNING_SPEED * direction)
         time.sleep(0.10)
         
 def straighten_robot_left():
 
+    ANGLE_RELATIVE_TO_WALL = int((IDEAL_WALL_DISTANCE - dist_6)/10)
+    ANGLE_RELATIVE_TO_WALL = abs(ANGLE_RELATIVE_TO_WALL)
+    CORRECTION_SPEED = 50 * MASTER_SPEED * (ANGLE_RELATIVE_TO_WALL)
+    
     direction = 1
     iterations = 1
     print("Straighten left")
     
     for i in range(iterations):
         motor_serial.send_command(CORRECTION_SPEED * direction, DRIVING_SPEED *direction)
-        time.sleep(0.10)
+        time.sleep(0.1)
+        drive_robot(FORWARDS, 0.1)
 
 def straighten_robot_right():
 
+    ANGLE_RELATIVE_TO_WALL = int((IDEAL_WALL_DISTANCE - dist_6)/10)
+    ANGLE_RELATIVE_TO_WALL = abs(ANGLE_RELATIVE_TO_WALL)
+    CORRECTION_SPEED = 100 * MASTER_SPEED * (ANGLE_RELATIVE_TO_WALL)
+    
     direction = 1
     iterations = 1
     print("Straighten right")
     
     for i in range(iterations):
         motor_serial.send_command(DRIVING_SPEED * direction, CORRECTION_SPEED * direction)
-        time.sleep(0.10)
+        time.sleep(0.1)
+        drive_robot(FORWARDS, 0.1)
 
 
 
@@ -145,13 +158,13 @@ while not motor_serial.shutdown_now :
     if dist_5 and dist_6 > TURN_LEFT_DISTANCE:
 
         print("No wall on the left side, turn left")
-        stop_robot()
+        stop_robot(1)
 
 
         # Turn robot left
         turn_robot_left()
 
-        drive_robot(FORWARDS, 1)
+        drive_robot(FORWARDS, 2)
     
     
         
@@ -170,10 +183,10 @@ while not motor_serial.shutdown_now :
 
 # If there is nothing in front of the robot it continus driving forwards
     else:
-        if dist_2 < MIN_WALL_DISTANCE:
+        if dist_5 < MIN_WALL_DISTANCE:
             straighten_robot_right()
             
-        elif dist_2 > MAX_WALL_DISTANCE:
+        elif dist_5 > MAX_WALL_DISTANCE:
             straighten_robot_left()
             
     
