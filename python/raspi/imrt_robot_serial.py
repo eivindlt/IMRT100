@@ -30,6 +30,8 @@ class IMRTRobotSerial :
         self._dist_2 = 255
         self._dist_3 = 255
         self._dist_4 = 255
+        self._dist_5 = 255
+        self._dist_6 = 255
         
         # Create an event for signaling threads when its time terminate the program
         self._run_event = threading.Event()
@@ -154,13 +156,33 @@ class IMRTRobotSerial :
         return dist
 
 
+    def get_dist_5(self):
+        
+        self._mutex.acquire()
+        dist = self._dist_5
+        self._mutex.release()
+        
+        return dist
+    
+
+      def get_dist_6(self):
+        
+        self._mutex.acquire()
+        dist = self._dist_6
+        self._mutex.release()
+        
+        return dist
+
+
+
+
 
         
     # Thread for receiving serial messages
     # This thread will run concurrently with other threads
     # This particular thread's only job is to listen to incomming messages
     # The readline() function is set to block until it gets a newline character
-    # By hvaing it in a separate thread, it will not block other threads while waiting for incomming messages
+    # By having it in a separate thread, it will not block other threads while waiting for incomming messages
     def _rx_thread(self) :
 
         while self._run_event.is_set() :
@@ -177,6 +199,8 @@ class IMRTRobotSerial :
                     self._dist_2 = (rx_msg[2] & 0xff)
                     self._dist_3 = (rx_msg[3] & 0xff)
                     self._dist_4 = (rx_msg[4] & 0xff)
+                    self._dist_5 = (rx_msg[5] & 0xff)
+                    self._dist_6 = (rx_msg[6] & 0xff)
                     self._mutex.release()
   
 
@@ -217,45 +241,4 @@ class IMRTRobotSerial :
 
 
 
-def main(argv) :
-
-    # Example program
-    print("Example program")
-    if len(argv) == 1 : 
-        port_name = "/dev/ttyACM0"
-    else :
-        port_name = argv[1]
-
-    # Create motor serial object
-    motor_serial = IMRTRobotSerial()
-
-    # Open serial port, exit if serial port can't be opened
-    connected = motor_serial.connect(port_name)
-    if not connected:
-        print("Exiting program")
-        sys.exit()
-        
-    # Spin receive thread
-    motor_serial.run()
-
-
-    # Now we will send some motor commands until the program is terminated by the user
-    speed = 0
-    while not motor_serial.shutdown_now :
-            speed = (speed + 10) % 400
-            motor_serial.send_command(speed, 400-speed)
-            time.sleep(0.1)
-
-
-    # Exit
-    motor_serial._shutdown()
-    print("Exiting program")
-
-
-
-
-if __name__ == '__main__' :
-    main(sys.argv)
-
- 
 
