@@ -24,6 +24,10 @@ STOP_DISTANCE = int (22 * MASTER_SPEED)
 MAX_WALL_DISTANCE = int(12 * MASTER_WALL_DISTANCE)
 MIN_WALL_DISTANCE = int(10 * MASTER_WALL_DISTANCE)
 CORRECTION_SPEED = 85 * MASTER_SPEED
+INNER_WHEEL_SPEED = 10 * MASTER_SPEED
+
+
+follow_left = True
 
 def stop_robot(duration):
 
@@ -35,7 +39,7 @@ def stop_robot(duration):
 
 def stop_robot_left():
 
-    iterations = int(5 / MASTER_SPEED)
+    iterations = int(2 / MASTER_SPEED)
     
     for i in range(iterations):
         drive_robot(FORWARDS, 0.1)
@@ -70,7 +74,7 @@ def turn_robot_left():
     iterations = int(30 / MASTER_SPEED)
     
     for i in range(iterations):
-        motor_serial.send_command(0, -TURNING_SPEED * direction)
+        motor_serial.send_command(INNER_WHEEL_SPEED, -TURNING_SPEED * direction)
         time.sleep(0.10)
         
 def straighten_robot_left():
@@ -138,10 +142,10 @@ while not motor_serial.shutdown_now :
 
     # Check if there is an obstacle in the way
 
-    if dist_2 > TURN_LEFT_DISTANCE:
+    if dist_5 and dist_6 > TURN_LEFT_DISTANCE:
 
         print("No wall on the left side, turn left")
-        stop_robot_left()
+        stop_robot()
 
 
         # Turn robot left
@@ -155,7 +159,7 @@ while not motor_serial.shutdown_now :
 
     #Turn robot right
 
-    elif dist_1 < STOP_DISTANCE :
+    elif dist_1 < STOP_DISTANCE or dist_2 < STOP_DISTANCE :
         print("Obstacle, turn right!")
         
         stop_robot(1)
