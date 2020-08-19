@@ -72,11 +72,16 @@ def turn_robot_around():
 
     direction = 1
     iterations = 25
-
+    
+    for i in range(iterations):
+        motor_serial.send_command(TURNING_SPEED * direction, -TURNING_SPEED * direction)
+        time.sleep(0.10)
+        
 def straighten_robot_left():
 
     direction = 1
     iterations = 1
+    print("Straighten left")
     
     for i in range(iterations):
         motor_serial.send_command(DRIVING_SPEED * direction, -CORRECTION_SPEED *direction)
@@ -86,6 +91,7 @@ def straighten_robot_right():
 
     direction = 1
     iterations = 1
+    print("Straighten right")
     
     for i in range(iterations):
         motor_serial.send_command(CORRECTION_SPEED * direction, -DRIVING_SPEED * direction)
@@ -162,13 +168,15 @@ while not motor_serial.shutdown_now :
     elif dist_2 < TURN_LEFT_DISTANCE and dist_1 >STOP_DISTANCE:
         # If there is nothing in front of the robot it continus driving forwards
         
-
-        if dist_2 < MIN_WALL_DISTANCE:
+        while dist_2 < MIN_WALL_DISTANCE:
             straighten_robot_right()
-        elif dist_2 > MAX_WALL_DISTANCE:
+            
+        while dist_2 > MAX_WALL_DISTANCE:
             straighten_robot_left()
-        else:
-            drive_robot(FORWARDS, 0.1)
+            
+    
+        drive_robot(FORWARDS, 0.1)
+        print("FORWARDS")
     
 
     #Turn robot right
