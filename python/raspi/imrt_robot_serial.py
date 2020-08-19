@@ -165,7 +165,7 @@ class IMRTRobotSerial :
         return dist
     
 
-      def get_dist_6(self):
+    def get_dist_6(self):
         
         self._mutex.acquire()
         dist = self._dist_6
