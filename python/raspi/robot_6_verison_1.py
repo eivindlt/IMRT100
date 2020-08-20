@@ -11,45 +11,53 @@ follow_left = True
 ########
 
 
-SPEED_GAIN = 5
-TURN_SPEED = 10
-STOP_DISTANCE = 20
-TURN_LEFT_DISTANCE = 25
-MAX_WALL_DISTANCE = 20
-MIN_WALL_DISTANCE = 16
+SPEED_GAIN = 8
+
+TURN_SPEED = 150
+STOP_DISTANCE = 25
+TURN_LEFT_DISTANCE = 40
+MAX_WALL_DISTANCE = 22
+IDEAL_WALL_DISTANCE = 20
+MIN_WALL_DISTANCE = 18
+ADJUSTMENT_SPEED_FACTOR = 0.8
 
 
+def stop_robot(iterations):
+
+    for i in range(iterations):
+        motor_serial.send_command(0, 0)
+        time.sleep(0.10)
 
 def turn_robot_left(left_dist, iterations, speed_motor):
 
-    speed_turn_1 = int((speed_motor * (1/left_dist)) * 20) 
+    speed_turn_1 = int((speed_motor * (1/left_dist)) * 25) 
     speed_turn_2 = int(speed_motor)
     
     for i in range(iterations):
         if follow_left == True:
-            motor_serial.send_command(speed_turn_2, speed_turn_1)
+            motor_serial.send_command(speed_turn_1, speed_turn_2)
             time.sleep(0.05)
         else:
             motor_serial.send_command(speed_turn_1, speed_turn_2)
-            time.sleep(0.05)
+            time.sleep(0.02)
             
-def turn_robot_right(iterations):
-    turn_duration = (iterations / (SPEED_GAIN * 0.12))
+def turn_robot_right():
 
-    for i in range(iterations):
+    for i in range(1):
         if follow_left == True:
-            motor_serial.send_command(TURN_SPEED, TURN_SPEED)
-            time.sleep(0.05)
+            motor_serial.send_command(TURN_SPEED, -TURN_SPEED)
+            time.sleep(0.01)
+            print("TURN RIGHT")
     
         
-def drive_forwards(speed1, speed2):
+def drive_forwards(speed1, speed2, iterations):
     
     for i in range(iterations):
         motor_serial.send_command(speed2, speed1)
-        time.sleep(0.05)
+        time.sleep(0.02)
 
 def adjust_left(angle):
-    adjust_speed_1 = int((1/angle) * speed_motor)
+    adjust_speed_1 = int(speed_motor - (angle * ADJUSTMENT_SPEED_FACTOR * IDEAL_WALL_DISTANCE))
     adjust_speed_2 = int(speed_motor)
     motor_serial.send_command(adjust_speed_2,adjust_speed_1 )
     time.sleep(0.05)
@@ -57,9 +65,9 @@ def adjust_left(angle):
 
 def adjust_right(angle):
     adjust_speed_1 = int(speed_motor)
-    adjust_speed_2 = int((1/angle) * speed_motor)
+    adjust_speed_2 = int(speed_motor - (angle * ADJUSTMENT_SPEED_FACTOR * IDEAL_WALL_DISTANCE))
     motor_serial.send_command(adjust_speed_2, adjust_speed_1)
-    time.sleep(0.05)
+    time.sleep(0.02)
         
 # Create motor serial object
 motor_serial = imrt_robot_serial.IMRTRobotSerial()
@@ -93,11 +101,16 @@ while not motor_serial.shutdown_now :
     dist_6 = motor_serial.get_dist_6()
     print("Dist 1:", dist_1, "   Dist 2:", dist_2, "   Dist 3:", dist_3, "   Dist 4:", dist_4, "   Dist 5:", dist_5, "   Dist 6:", dist_6)
 
-    speed_motor_1 = int(dist_1 * SPEED_GAIN)
-    speed_motor_2 = int(dist_2 * SPEED_GAIN)
-    speed_motor = int((speed_motor_1 + speed_motor_2)/2)
+    speed_motor_1 = int(dist_1 *0.7 * SPEED_GAIN)
+    speed_motor_2 = int(dist_2 * 0.7 * SPEED_GAIN)
+    speed_motor_gain = int((speed_motor_1 + speed_motor_2)/2)
+    speed_motor = int((speed_motor_gain*0.3) + 100)
     left_angle = abs(dist_5 - dist_6)
     right_angle = abs(dist_3 - dist_4)
+    DISTANCE_FROM_IDEAL = abs(IDEAL_WALL_DISTANCE - (dist_5 + dist_6))
+
+    if left_angle == 0:
+        left_angle = left_angle + 1
     
     # Check if there is an obstacle in the way
     if follow_left == True:
@@ -109,16 +122,19 @@ while not motor_serial.shutdown_now :
             
         elif dist_1 < STOP_DISTANCE or dist_2 < STOP_DISTANCE:
 
-            turn_robot_right(10)
+            stop_robot(1)
+            turn_robot_right()
 
         else:
             if dist_5 < MIN_WALL_DISTANCE:
-                adjust_right(left_angle)
-
-            elif dist_5 > MAX_WALL_DISTANCE:
+                
                 adjust_left(left_angle)
+                
+            elif dist_5 > MAX_WALL_DISTANCE:
+                adjust_right(left_angle)
+                
             else:
-                drive_forwards(speed_motor_1, speed_motor_2)
+                drive_forwards(speed_motor, speed_motor, 1)
             
             
 
