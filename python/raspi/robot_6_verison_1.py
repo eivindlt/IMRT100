@@ -11,45 +11,53 @@ follow_left = True
 ########
 
 
-SPEED_GAIN = 8
+SPEED_GAIN = 9
 
 TURN_SPEED = 150
 STOP_DISTANCE = 25
-TURN_LEFT_DISTANCE = 40
+TURN_LEFT_DISTANCE = 45
 MAX_WALL_DISTANCE = 22
 IDEAL_WALL_DISTANCE = 20
 MIN_WALL_DISTANCE = 18
-ADJUSTMENT_SPEED_FACTOR = 0.8
+ADJUSTMENT_SPEED_FACTOR = 2
 
 
 def stop_robot(iterations):
 
     for i in range(iterations):
         motor_serial.send_command(0, 0)
-        time.sleep(0.10)
+        time.sleep(0.1)
 
 def turn_robot_left(left_dist, iterations, speed_motor):
 
-    speed_turn_1 = int((speed_motor * (1/left_dist)) * 25) 
+    speed_turn_1 = int((speed_motor * (1/left_dist)) * 8) 
     speed_turn_2 = int(speed_motor)
     
     for i in range(iterations):
         if follow_left == True:
             motor_serial.send_command(speed_turn_1, speed_turn_2)
-            time.sleep(0.05)
+            time.sleep(0.02)
         else:
             motor_serial.send_command(speed_turn_1, speed_turn_2)
             time.sleep(0.02)
             
+def turn_robot_left_spin():
+
+    for i in range(1):
+        if follow_left == True:
+            motor_serial.send_command(-TURN_SPEED, TURN_SPEED)
+            time.sleep(0.1)
+            print("TURN RIGHT")
+    
 def turn_robot_right():
 
     for i in range(1):
         if follow_left == True:
             motor_serial.send_command(TURN_SPEED, -TURN_SPEED)
-            time.sleep(0.01)
+            time.sleep(0.3)
             print("TURN RIGHT")
-    
-        
+
+            
 def drive_forwards(speed1, speed2, iterations):
     
     for i in range(iterations):
@@ -60,7 +68,7 @@ def adjust_left(angle):
     adjust_speed_1 = int(speed_motor - (angle * ADJUSTMENT_SPEED_FACTOR * IDEAL_WALL_DISTANCE))
     adjust_speed_2 = int(speed_motor)
     motor_serial.send_command(adjust_speed_2,adjust_speed_1 )
-    time.sleep(0.05)
+    time.sleep(0.02)
 
 
 def adjust_right(angle):
@@ -101,23 +109,39 @@ while not motor_serial.shutdown_now :
     dist_6 = motor_serial.get_dist_6()
     print("Dist 1:", dist_1, "   Dist 2:", dist_2, "   Dist 3:", dist_3, "   Dist 4:", dist_4, "   Dist 5:", dist_5, "   Dist 6:", dist_6)
 
+    if dist_6 > 35:
+        dist_6 = 35
+    if dist_5 > 50:
+        dist_5 = 50
+    if dist_4 > 35:
+        dist_4 = 35
+    if dist_3 > 35:
+        dist_3 = 35
+    
+    
     speed_motor_1 = int(dist_1 *0.7 * SPEED_GAIN)
     speed_motor_2 = int(dist_2 * 0.7 * SPEED_GAIN)
     speed_motor_gain = int((speed_motor_1 + speed_motor_2)/2)
-    speed_motor = int((speed_motor_gain*0.3) + 100)
+    speed_motor = int((speed_motor_gain*0.3) + 150)
     left_angle = abs(dist_5 - dist_6)
     right_angle = abs(dist_3 - dist_4)
-    DISTANCE_FROM_IDEAL = abs(IDEAL_WALL_DISTANCE - (dist_5 + dist_6))
+    DISTANCE_FROM_IDEAL = abs(IDEAL_WALL_DISTANCE - ((dist_5 + dist_6))*1)
 
     if left_angle == 0:
         left_angle = left_angle + 1
+
+    
     
     # Check if there is an obstacle in the way
     if follow_left == True:
         DIRECTION = 1
+        '''
+        if dist_5 > TURN_LEFT_DISTANCE and (dist_5 < STOP_DISTANCE or dist_6 < STOP_DISTANCE):
 
+            turn_robot_left_spin()
+        '''
         if dist_5 > TURN_LEFT_DISTANCE:
-
+        
             turn_robot_left(dist_5, 1, speed_motor)
             
         elif dist_1 < STOP_DISTANCE or dist_2 < STOP_DISTANCE:
