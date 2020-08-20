@@ -39,27 +39,27 @@ def turn_robot_right(iterations):
     for i in range(iterations):
         if follow_left == True:
             motor_serial.send_command(TURN_SPEED, TURN_SPEED)
-            time.sleep(0.05)
+            time.sleep(0.02)
     
         
-def drive_forwards(speed1, speed2):
+def drive_forwards(speed1, speed2, iterations):
     
     for i in range(iterations):
         motor_serial.send_command(speed2, speed1)
-        time.sleep(0.05)
+        time.sleep(0.02)
 
 def adjust_left(angle):
     adjust_speed_1 = int((1/angle) * speed_motor)
     adjust_speed_2 = int(speed_motor)
     motor_serial.send_command(adjust_speed_2,adjust_speed_1 )
-    time.sleep(0.05)
+    time.sleep(0.02)
 
 
 def adjust_right(angle):
     adjust_speed_1 = int(speed_motor)
     adjust_speed_2 = int((1/angle) * speed_motor)
     motor_serial.send_command(adjust_speed_2, adjust_speed_1)
-    time.sleep(0.05)
+    time.sleep(0.02)
         
 # Create motor serial object
 motor_serial = imrt_robot_serial.IMRTRobotSerial()
@@ -96,8 +96,8 @@ while not motor_serial.shutdown_now :
     speed_motor_1 = int(dist_1 * SPEED_GAIN)
     speed_motor_2 = int(dist_2 * SPEED_GAIN)
     speed_motor = int((speed_motor_1 + speed_motor_2)/2)
-    left_angle = abs(dist_5 - dist_6)
-    right_angle = abs(dist_3 - dist_4)
+    left_angle = abs((dist_5 - dist_6))
+    right_angle = abs((dist_3 - dist_4))
     
     # Check if there is an obstacle in the way
     if follow_left == True:
@@ -112,14 +112,16 @@ while not motor_serial.shutdown_now :
             turn_robot_right(10)
 
         else:
-            if dist_5 < MIN_WALL_DISTANCE:
-                adjust_right(left_angle)
+            if left_angle == 0:
+                left_angle = left_angle + 1
+                if dist_5 < MIN_WALL_DISTANCE:
+                    adjust_right(left_angle)
 
-            elif dist_5 > MAX_WALL_DISTANCE:
-                adjust_left(left_angle)
-            else:
-                drive_forwards(speed_motor_1, speed_motor_2)
-            
+                elif dist_5 > MAX_WALL_DISTANCE:
+                    adjust_left(left_angle)
+                else:
+                    drive_forwards(speed_motor_1, speed_motor_2, 1)
+                
             
 
         

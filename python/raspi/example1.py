@@ -155,7 +155,7 @@ while not motor_serial.shutdown_now :
 
     # Check if there is an obstacle in the way
 
-      if dist_5 and dist_6 > TURN_LEFT_DISTANCE:
+    if dist_5 and dist_6 > TURN_LEFT_DISTANCE:
 
         print("No wall on the left side, turn left")
         stop_robot(1)
