@@ -22,8 +22,8 @@ MIN_WALL_DISTANCE = 16
 
 def turn_robot_left(left_dist, iterations, speed_motor):
 
-    speed_1 = int(speed_motor / (left_dist / 20)) 
-    speed_2 = int(speed_motor)
+    speed_turn_1 = int(speed_motor / (left_dist / 20)) 
+    speed_turn_2 = int(speed_motor)
     
     for i in range(iterations):
         if follow_left == True:
