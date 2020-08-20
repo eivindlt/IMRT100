@@ -97,7 +97,7 @@ while not motor_serial.shutdown_now :
     speed_motor_2 = int(dist_2 * SPEED_GAIN)
     speed_motor = int((speed_motor_1 + speed_motor_2)/2)
     left_angle = abs(dist_5 - dist_6)
-    right_angle = abs(dist3 - dist_4)
+    right_angle = abs(dist_3 - dist_4)
     
     # Check if there is an obstacle in the way
     if follow_left == True:
