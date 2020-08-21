@@ -11,14 +11,14 @@ follow_left = True
 ########
 
 
-SPEED_GAIN = 5
+SPEED_GAIN = 3
 
-TURN_SPEED = 300
-STOP_DISTANCE = 18
+TURN_SPEED = 100
+STOP_DISTANCE = 16
 TURN_LEFT_DISTANCE = 35
-MAX_WALL_DISTANCE = 18
-IDEAL_WALL_DISTANCE = 17
-MIN_WALL_DISTANCE = 16
+MAX_WALL_DISTANCE = 13
+IDEAL_WALL_DISTANCE = 12
+MIN_WALL_DISTANCE = 11
 ADJUSTMENT_SPEED_FACTOR = 1
 last_angle = 1
 
@@ -48,7 +48,7 @@ def turn_robot_left_spin():
     for i in range(1):
         if follow_left == True:
             motor_serial.send_command(-TURN_SPEED, TURN_SPEED)
-            time.sleep(0.13)
+            time.sleep(0.15)
             print("TURN LEFT")
     
 def turn_robot_right():
@@ -56,7 +56,7 @@ def turn_robot_right():
     for i in range(1):
         if follow_left == True:
             motor_serial.send_command(TURN_SPEED, -TURN_SPEED)
-            time.sleep(0.13)
+            time.sleep(0.15)
             print("TURN RIGHT")
 
             
@@ -127,7 +127,7 @@ while not motor_serial.shutdown_now :
     speed_motor = int((speed_motor_gain*0.3) + 120)
     left_angle = abs((dist_5 / dist_6)*1.5)
     right_angle = abs(dist_3 - dist_4)
-    DISTANCE_FROM_IDEAL = abs(((IDEAL_WALL_DISTANCE - dist_5) + (IDEAL_WALL_DISTANCE - dist_6))*8)
+    DISTANCE_FROM_IDEAL = abs(((IDEAL_WALL_DISTANCE - dist_5) + (IDEAL_WALL_DISTANCE - dist_6))*10)
 
     if last_angle < left_angle:
         left_angle = last_angle
