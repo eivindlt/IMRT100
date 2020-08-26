@@ -1,17 +1,28 @@
-
-# Import some modules that we need
-import imrt_robot_serial
-import signal
-import time
-import sys
-
+#!/usr/bin/env python
 
 import struct
 import threading
 import time
+import imrt_robot_serial
+import signal
+import sys
+
+LEFT= -1
+RIGHT = 1
+FORWARDS = 1
+BACKWARDS = -1
+DRIVING_SPEED = 400
+TURNING_SPEED = 100
 
 
-DRIVING_SPEED = 200
+def drive_robot(direction, duration):
+    speed = DRIVING_SPEED * direction
+    iterations = int(duration * 10)
+
+    for i in range(iterations):
+    motor_serial.send_command(speed,speed)
+    time.sleep(0.10)
+
 
 class IMRTxbox:
         
@@ -242,30 +253,7 @@ class IMRTxbox:
         value = self._buttons[self._button_idx["Down"]]
         self._mutex.release()
         return value
-
     
-# Create motor serial object
-motor_serial = imrt_robot_serial.IMRTRobotSerial()
-
-
-# Open serial port. Exit if serial port cannot be opened
-try:
-    motor_serial.connect("/dev/ttyACM0")
-except:
-    print("Could not open port. Is your robot connected?\nExiting program")
-    sys.exit()
-
-    
-# Start serial receive thread
-motor_serial.run()
-
-
-# Now we will enter a loop that will keep looping until the program terminates
-# The motor_serial object will inform us when it's time to exit the program
-# (say if the program is terminated by the user)
-print("Entering loop. Ctrl+c to terminate")
-
-
 
 
 
@@ -282,56 +270,25 @@ def main():
 
             but_rt = controller.get_right_trigger()
             but_lt = controller.get_left_trigger()
-            
             ax_lx = controller.get_left_x()
             ax_ly = controller.get_left_y()
             ax_rx = controller.get_right_x()
             ax_ry = controller.get_right_y()
 
             print("a: {}, b: {}, x: {}, y: {}, lx: {:+.2f}, ly: {:+.2f}, rx: {:+.2f}, ry: {:+.2f}".format(but_a, but_b, but_x, but_y, ax_lx, ax_ly, ax_rx, ax_ry), end='\r')
-            print("Left trigger", but_lt, "Right trigger", but_rt)
+            print("Right trigger", but_rt, "Left trigger", but_lt)
+            time.sleep(1.0)
 
-            time.sleep(0.1)
-
-            if but_rt <= 0:
-                but_rt = float(1 - but_rt)
-            elif but_rt >= 0:
-                but_rt = float(but_rt + 1)
-            '''
-            if but_lt <= 0:
-                but_lt = 1 + but_lt
-            else:
-                    but_lt = but_lt + 1
-            '''
-
-            if ax_lx < 0:
-                left_turn_speed = float(2 - (2*(abs(ax_lx))))
-
-            else:
-                right_turn_speed = float(2 - ((2*abs(ax_lx))))
-            print("but_rt", but_rt)
-
-            if but_rt > 0 and ax_lx < 0 :
-                speed1 = int(left_turn_speed * DRIVING_SPEED*but_rt)
-                speed2 = int(DRIVING_SPEED*but_rt)
-                motor_serial.send_command(speed1, speed2)
+            if but_rt in range(-1,0,0.01):
+                motor_serial_command(-2/but_rt,-2/but_rt)
                 time.sleep(0.1)
-                print("Turn left")
-
-            elif but_rt > 0 and ax_lx < 0 :
-                speed1 = int(DRIVING_SPEED * but_rt)
-                speed2 = int(right_turn_speed * DRIVING_SPEED * but_rt)
-                motor_serial.send_command(speed1, speed2)
+                
+            elif but_rt in range(-0.99,1, +0.01):
+                if but_rt == 0:
+                    but_rt = 0.1
+                motor_serial_command(DRIVING_SPEED*but_rt,DRIVING_SPEED*but_rt)
                 time.sleep(0.1)
-                print("Turn right")
             
-            else:
-                speed1 = int(DRIVING_SPEED * but_rt)
-                speed2 = int(DRIVING_SPEED * but_rt)
-                motor_serial.send_command(speed1, speed2)
-                time.sleep(0.1)
-                print("Turn right")
-
             
             
 
@@ -342,5 +299,10 @@ def main():
         controller.shutdown()
         print("Exiting program")
 
+
+
+
+
 if __name__ == '__main__':
     main()
+
