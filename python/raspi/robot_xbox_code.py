@@ -13,36 +13,10 @@ import time
 
 DRIVING_SPEED = 200
 
-def drive_forwards(speed1, speed2, iterations):
-    
-    for i in range(iterations):
-        motor_serial.send_command(speed2, speed1)
-        time.sleep(0.02)
-
-
+class IMRTxbox:
         
-# Create motor serial object
-motor_serial = imrt_robot_serial.IMRTRobotSerial()
 
-
-# Open serial port. Exit if serial port cannot be opened
-try:
-    motor_serial.connect("/dev/ttyACM0")
-except:
-    print("Could not open port. Is your robot connected?\nExiting program")
-    sys.exit()
-
-    
-# Start serial receive thread
-motor_serial.run()
-
-
-# Now we will enter a loop that will keep looping until the program terminates
-# The motor_serial object will inform us when it's time to exit the program
-# (say if the program is terminated by the user)
-print("Entering loop. Ctrl+c to terminate")
-
-def __init__(self, device="/dev/input/js0", deadzone=0.2):
+    def __init__(self, device="/dev/input/js0", deadzone=0.2):
         self._mutex = threading.Lock()
         self._shutdown_thread = False
         self._buttons = [False] * 15
@@ -79,7 +53,7 @@ def __init__(self, device="/dev/input/js0", deadzone=0.2):
 
   
 
-def _listen_thread(self, device, deadzone):
+    def _listen_thread(self, device, deadzone):
         
         
         evnt_size = struct.calcsize("ihBB")
@@ -133,7 +107,7 @@ def _listen_thread(self, device, deadzone):
 
 
 
-def shutdown(self, blocking=True):
+    def shutdown(self, blocking=True):
         self._mutex.acquire()
         self._shutdown_thread = True
         self._mutex.release()
@@ -141,37 +115,37 @@ def shutdown(self, blocking=True):
             self._device_listener.join()
 
 
-def get_left_x(self):
+    def get_left_x(self):
         self._mutex.acquire()
         value = self._axes[self._axes_idx["LX"]]
         self._mutex.release()
         return value
 
-def get_left_y(self):
+    def get_left_y(self):
         self._mutex.acquire()
         value = -self._axes[self._axes_idx["LY"]]
         self._mutex.release()
         return value
 
-def get_left_trigger(self):
+    def get_left_trigger(self):
         self._mutex.acquire()
         value = self._axes[self._axes_idx["LT"]]
         self._mutex.release()
         return value
 
-def get_right_x(self):
+    def get_right_x(self):
         self._mutex.acquire()
         value = self._axes[self._axes_idx["RX"]]
         self._mutex.release()
         return value
 
-def get_right_y(self):
+    def get_right_y(self):
         self._mutex.acquire()
         value = -self._axes[self._axes_idx["RY"]]
         self._mutex.release()
         return value
 
-def get_right_trigger(self):
+    def get_right_trigger(self):
         self._mutex.acquire()
         value = self._axes[self._axes_idx["RT"]]
         self._mutex.release()
@@ -179,95 +153,119 @@ def get_right_trigger(self):
 
 
 
-def get_a(self):
+    def get_a(self):
         self._mutex.acquire()
         value = self._buttons[self._button_idx["A"]]
         self._mutex.release()
         return value
 
-def get_b(self):
+    def get_b(self):
         self._mutex.acquire()
         value = self._buttons[self._button_idx["B"]]
         self._mutex.release()
         return value
 
-def get_x(self):
+    def get_x(self):
         self._mutex.acquire()
         value = self._buttons[self._button_idx["X"]]
         self._mutex.release()
         return value
 
-def get_y(self):
+    def get_y(self):
         self._mutex.acquire()
         value = self._buttons[self._button_idx["Y"]]
         self._mutex.release()
         return value
 
-def get_left_bumper(self):
+    def get_left_bumper(self):
         self._mutex.acquire()
         value = self._buttons[self._button_idx["LB"]]
         self._mutex.release()
         return value
 
-def get_right_bumper(self):
+    def get_right_bumper(self):
         self._mutex.acquire()
         value = self._buttons[self._button_idx["RB"]]
         self._mutex.release()
         return value
 
-def get_back(self):
+    def get_back(self):
         self._mutex.acquire()
         value = self._buttons[self._button_idx["Back"]]
         self._mutex.release()
         return value
 
-def get_start(self):
+    def get_start(self):
         self._mutex.acquire()
         value = self._buttons[self._button_idx["Start"]]
         self._mutex.release()
         return value
 
-def get_xbox(self):
+    def get_xbox(self):
         self._mutex.acquire()
         value = self._buttons[self._button_idx["Xbox"]]
         self._mutex.release()
         return value
 
-def get_left_stick(self):
+    def get_left_stick(self):
         self._mutex.acquire()
         value = self._buttons[self._button_idx["Lstick"]]
         self._mutex.release()
         return value
 
-def get_right_stick(self):
+    def get_right_stick(self):
         self._mutex.acquire()
         value = self._buttons[self._button_idx["Rstick"]]
         self._mutex.release()
         return value
 
-def get_dpad_left(self):
+    def get_dpad_left(self):
         self._mutex.acquire()
         value = self._buttons[self._button_idx["Left"]]
         self._mutex.release()
         return value
 
-def get_dpad_right(self):
+    def get_dpad_right(self):
         self._mutex.acquire()
         value = self._buttons[self._button_idx["Right"]]
         self._mutex.release()
         return value
 
-def get_dpad_up(self):
+    def get_dpad_up(self):
         self._mutex.acquire()
         value = self._buttons[self._button_idx["Up"]]
         self._mutex.release()
         return value
 
-def get_dpad_down(self):
+    def get_dpad_down(self):
         self._mutex.acquire()
         value = self._buttons[self._button_idx["Down"]]
         self._mutex.release()
         return value
+
+        
+# Create motor serial object
+motor_serial = imrt_robot_serial.IMRTRobotSerial()
+
+
+# Open serial port. Exit if serial port cannot be opened
+try:
+    motor_serial.connect("/dev/ttyACM0")
+except:
+    print("Could not open port. Is your robot connected?\nExiting program")
+    sys.exit()
+
+    
+# Start serial receive thread
+motor_serial.run()
+
+
+# Now we will enter a loop that will keep looping until the program terminates
+# The motor_serial object will inform us when it's time to exit the program
+# (say if the program is terminated by the user)
+print("Entering loop. Ctrl+c to terminate")
+
+
 
 
 
@@ -332,4 +330,5 @@ def main():
         controller.shutdown()
         print("Exiting program")
 
-
+if __name__ == '__main__':
+    main()
